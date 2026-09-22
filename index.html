@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex, nofollow">
+  <meta name="referrer" content="no-referrer">
+  <title>CRM Comercial DPI</title>
+  <style>
+    :root {
+      --bg: #f6f7f9;
+      --card: #ffffff;
+      --text: #111827;
+      --muted: #6b7280;
+      --accent: #1d4ed8;
+      --border: #e5e7eb;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root:not([data-theme="light"]) {
+        --bg: #0b1020;
+        --card: #111827;
+        --text: #f3f4f6;
+        --muted: #9ca3af;
+        --accent: #93b4ff;
+        --border: #1f2937;
+      }
+    }
+    :root[data-theme="dark"] {
+      --bg: #0b1020;
+      --card: #111827;
+      --text: #f3f4f6;
+      --muted: #9ca3af;
+      --accent: #93b4ff;
+      --border: #1f2937;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      padding: 16px;
+      background: var(--bg);
+      color: var(--text);
+      font: 16px/1.5 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    }
+    main {
+      width: 100%;
+      max-width: 380px;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 28px 24px;
+      text-align: center;
+    }
+    h1 { font-size: 1.15rem; margin: 0 0 8px; }
+    p { margin: 0; color: var(--muted); }
+    a.boton {
+      display: inline-block;
+      margin-top: 18px;
+      padding: 10px 18px;
+      border-radius: 8px;
+      background: var(--accent);
+      color: var(--card);
+      text-decoration: none;
+      font-weight: 600;
+    }
+    [hidden] { display: none !important; }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>CRM Comercial DPI</h1>
+    <p id="estado">Abriendo la plataforma…</p>
+    <a id="enlace" class="boton" hidden>Entrar al CRM</a>
+  </main>
+  <script>
+    // Puerta de entrada fija: lee la dirección vigente del CRM y redirige. La dirección la actualiza el piloto
+    // cuando cambia el túnel. Solo se aceptan direcciones del túnel de Cloudflare.
+    (async function () {
+      var estado = document.getElementById("estado");
+      var enlace = document.getElementById("enlace");
+      try {
+        var res = await fetch("destino.json?t=" + Date.now(), { cache: "no-store" });
+        var data = await res.json();
+        var url = String(data.url || "");
+        if (!/^https:\/\/[a-z0-9-]+\.trycloudflare\.com$/.test(url)) throw new Error("dirección inválida");
+        enlace.href = url + "/";
+        enlace.hidden = false;
+        estado.textContent = "Si no se abre sola en unos segundos, usa el botón.";
+        location.replace(url + "/");
+      } catch (e) {
+        estado.textContent = "La plataforma no está disponible en este momento. Intenta de nuevo en unos minutos.";
+      }
+    })();
+  </script>
+</body>
+</html>
